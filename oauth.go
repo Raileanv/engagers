@@ -75,8 +75,8 @@ func newGithubConfig() oauth2.Config {
 	return oauth2.Config{
 		ClientID:     "0fde398bb27f5145e092",
 		ClientSecret: "4f422e33a0cfef1dbd6f080fca298ff829dc99d0",
-		//RedirectURL:  "https://shrouded-oasis-52949.herokuapp.com/users/auth/github/callback",
-		RedirectURL: "http://localhost:3000/users/auth/github/callback",
+		RedirectURL:  "https://shrouded-oasis-52949.herokuapp.com/users/auth/github/callback",
+		//RedirectURL: "http://localhost:3000/users/auth/github/callback",
 		Endpoint: github.Endpoint,
 		Scopes:   []string{"user"},
 	}
