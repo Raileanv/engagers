@@ -198,7 +198,6 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 		return
 	}
 	quizes := []Quiz{}
-	presentation := Presentation{}
 
 	for {
 		part, err := mr.NextPart()
