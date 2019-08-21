@@ -220,10 +220,10 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 		}
 	}
 	for _, n := range quizes {
-		presentation.Quiz = append(presentation.Quiz, n)
+		n.PresentationID = uint(id)
+		DB.Save(n)
 	}
-	DB.Save(presentation)
-	jsn, _ := json.Marshal(presentation)
+	jsn, _ := json.Marshal(quizes)
 	w.Write(jsn)
 }
 
