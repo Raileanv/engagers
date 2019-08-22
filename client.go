@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 type Client struct {
@@ -64,14 +65,18 @@ type statistics struct {
 
 func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	var stat []statistics
+	session_id := m.Client.sessionId
 
 	DB.Raw(`SELECT count(answer) amount, answer, correct from quiz_answers q
 	join answers a
 	on a.id = q.answer_id
 	where q.quiz_id = ?
 	and q.session_id = ?
-	group by answer, correct`, 1, 2).Scan(&stat)
-	//group by answer, correct`, quiz_id, session_id).Scan(&stat)
+	group by answer, correct`, quiz_id, session_id).Scan(&stat)
+
+	fmt.Println("======================")
+	fmt.Println(quiz_id, session_id)
+	fmt.Println(stat)
 
 	statJson, _ := json.Marshal(stat)
 
