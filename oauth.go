@@ -74,7 +74,7 @@ func AuthWithTempTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 func newGithubConfig() oauth2.Config {
 
-	redirectUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "/users/auth/github/callback")
+	redirectUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "users/auth/github/callback")
 	return oauth2.Config{
 		ClientID:     os.Getenv("CLIENT_ID"),
 		ClientSecret: os.Getenv("CLIENT_SECRET"),
