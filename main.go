@@ -82,7 +82,8 @@ func authChecker(w http.ResponseWriter, r *http.Request) {
 	models.FindUserByPubToken(reqToken)
 
 	if reqToken == "" || (models.CurrentUser == models.User{}) || (models.CurrentUser.AccessToken == "") {
-		http.Redirect(w, r, "http://localhost:3000/auth_with_github", http.StatusFound)
+		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
+		http.Redirect(w, r, url, http.StatusFound)
 	}
 }
 

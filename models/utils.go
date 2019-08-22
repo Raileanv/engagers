@@ -6,8 +6,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/url"
-	"os"
 	"time"
+	"os"
 )
 
 //const connStr = "user=vrailean password=5b34b4ccc dbname=prezentr_admin_development host=localhost sslmode=disable"
@@ -34,12 +34,12 @@ func InitDB() *gorm.DB {
 		panic("db nil")
 	}
 
-	DB.DropTableIfExists(&User{}, &Conference{}, &Presentation{}, &Session{}, &Quiz{}, &Answer{}, &QuizAnswer{})
+	//DB.DropTableIfExists(&User{}, &Conference{}, &Presentation{}, &Session{}, &Quiz{}, &Answer{}, &QuizAnswer{})
 	DB.AutoMigrate(&User{}, &Conference{}, &Presentation{}, &Session{}, &Quiz{}, &Answer{}, &QuizAnswer{})
-	DB.Model(&Session{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
-	DB.Model(&Quiz{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
-	DB.Model(&Answer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
-	DB.Model(&QuizAnswer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
+	//DB.Model(&Session{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
+	//DB.Model(&Quiz{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
+	//DB.Model(&Answer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
+	//DB.Model(&QuizAnswer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
 	//db.Model(&QuizAnswer{}).AddForeignKey("session_id", "sessions(id)", "CASCADE", "CASCADE")
 	return DB
 }
