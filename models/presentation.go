@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"os"
 )
 
 type Presentation struct {
@@ -37,8 +38,8 @@ var (
 	awsSession, _ = awsSessionPackage.NewSession(&aws.Config{
 		Region: aws.String("eu-west-2"),
 		Credentials: credentials.NewStaticCredentials(
-			"AKIAI4Y553AQGP5LQBBQ",                     // id
-			"YWVO5U0n2XeL+3+j+C3ddnp7i4b3jPsTJdSbAdb9", // secret
+			os.Getenv("AWS_ID"),
+			os.Getenv("AWS_SECRET"),
 			""), // token can be left blank for now
 	})
 )
@@ -47,9 +48,9 @@ func mapRequestToSession(request *http.Request, session *Session) {
 	layoutISO := "2006-01-02T15:04:05"
 	startAt, _ := time.Parse(layoutISO, request.FormValue("start_at"))
 	endAt, _ := time.Parse(layoutISO, request.FormValue("end_at"))
-	conference_id, _ := strconv.ParseInt(request.FormValue("conference_id"), 10, 32)
+	conferenceId, _ := strconv.ParseInt(request.FormValue("conference_id"), 10, 32)
 
-	session.ConferenceID = uint(conference_id)
+	session.ConferenceID = uint(conferenceId)
 	session.StartAt = startAt
 	session.EndAt = endAt
 }

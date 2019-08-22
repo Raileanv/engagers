@@ -7,7 +7,6 @@ import (
 	"log"
 	"strconv"
 	"time"
-	"fmt"
 )
 
 type Client struct {
@@ -73,10 +72,6 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	where q.quiz_id = ?
 	and q.session_id = ?
 	group by answer, correct`, quiz_id, session_id).Scan(&stat)
-
-	fmt.Println("======================")
-	fmt.Println(quiz_id, session_id)
-	fmt.Println(stat)
 
 	statJson, _ := json.Marshal(stat)
 
