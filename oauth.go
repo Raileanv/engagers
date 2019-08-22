@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+	"os"
 )
 
 type OToken struct {
@@ -73,8 +74,8 @@ func AuthWithTempTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 func newGithubConfig() oauth2.Config {
 	return oauth2.Config{
-		ClientID:     "0fde398bb27f5145e092",
-		ClientSecret: "4f422e33a0cfef1dbd6f080fca298ff829dc99d0",
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
 		RedirectURL:  "https://shrouded-oasis-52949.herokuapp.com/users/auth/github/callback",
 		//RedirectURL: "http://localhost:3000/users/auth/github/callback",
 		Endpoint: github.Endpoint,
