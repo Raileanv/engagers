@@ -10,8 +10,8 @@ import (
 	"golang.org/x/oauth2/github"
 	"io/ioutil"
 	"net/http"
-	"time"
 	"os"
+	"time"
 )
 
 type OToken struct {
@@ -73,10 +73,12 @@ func AuthWithTempTokenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func newGithubConfig() oauth2.Config {
+
+	redirectUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "/users/auth/github/callback")
 	return oauth2.Config{
 		ClientID:     os.Getenv("CLIENT_ID"),
 		ClientSecret: os.Getenv("CLIENT_SECRET"),
-		RedirectURL:  "https://shrouded-oasis-52949.herokuapp.com/users/auth/github/callback",
+		RedirectURL:  redirectUrl,
 		//RedirectURL: "http://localhost:3000/users/auth/github/callback",
 		Endpoint: github.Endpoint,
 		Scopes:   []string{"user"},
@@ -139,7 +141,7 @@ func AuthGithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, tempTokenURL, 301)
 }
 
-func FindOrCreateUser(token *OToken, userInfo *GithubUserInfo) (models.User) {
+func FindOrCreateUser(token *OToken, userInfo *GithubUserInfo) models.User {
 	user := models.User{}
 	fmt.Println("=============================")
 	fmt.Println(DB)
