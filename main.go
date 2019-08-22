@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"os"
 
 	"engagers/models"
 )
@@ -19,7 +20,6 @@ var (
 		Timeout: timeout,
 	}
 
-	baseUrl  = "https://shrouded-oasis-52949.herokuapp.com"
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:   1024,
 		WriteBufferSize:  1024,
@@ -33,7 +33,8 @@ func getMeHandler(w http.ResponseWriter, r *http.Request) {
 	user := models.FindUserByPubToken(reqToken)
 
 	if reqToken == "" || (user == models.User{}) || (user.AccessToken == "") {
-		http.Redirect(w, r, "https://shrouded-oasis-52949.herokuapp.com/auth_with_github", http.StatusFound)
+		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
+		http.Redirect(w, r, url, http.StatusFound)
 	}
 
 	getMeUrl := models.GenerateGetMeUrl(user.AccessToken)

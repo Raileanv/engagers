@@ -134,17 +134,17 @@ func AuthGithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	FindOrCreateUser(&token, &githubUserInfo)
 
 	if models.IsCurrentUserPresent() {
-		http.Redirect(w, r, "https://shrouded-oasis-52949.herokuapp.com/auth", http.StatusFound)
+		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth")
+		http.Redirect(w, r, url, http.StatusFound)
 	}
-
-	tempTokenURL := models.GenerateTempTokenUrl(models.CurrentUser.TemporaryToken, "https://shrouded-oasis-52949.herokuapp.com/temp_url_handler")
+	tempUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "temp_url_handler")
+	tempTokenURL := models.GenerateTempTokenUrl(models.CurrentUser.TemporaryToken, tempUrl)
 	http.Redirect(w, r, tempTokenURL, 301)
 }
 
 func FindOrCreateUser(token *OToken, userInfo *GithubUserInfo) models.User {
 	user := models.User{}
-	fmt.Println("=============================")
-	fmt.Println(DB)
+
 	DB.Find(&user, "github_id = ?", userInfo.ID)
 	if (models.User{} != user) {
 		UpdateUserToken(&user, token)
