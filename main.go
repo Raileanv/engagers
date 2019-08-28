@@ -111,10 +111,16 @@ func main() {
 			rr.Get("/:presentation_id/sessions", func(w http.ResponseWriter, r *http.Request, params martini.Params) {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
-			r.Get("/", models.GetPresentationsHandler)
+			rr.Get("/", models.GetPresentationsHandler)
 		})
 
-		r.Post("/conference", models.CreateConferenceHandler)
+		r.Group("/conference", func(rr martini.Router) {
+			rr.Post("/", models.CreateConferenceHandler)
+			rr.Get("/", models.GetConferencesHandler)
+			rr.Get("/:conference_id", func(w http.ResponseWriter, r *http.Request, params martini.Params) {
+				models.GetConferenceHandler(w, r, params)
+			})
+		})
 
 	}, authChecker)
 
