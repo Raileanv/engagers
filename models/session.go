@@ -15,4 +15,5 @@ type Session struct {
 	PresentationID uint
 	ConferenceID   uint
 	QuizAnswers    []QuizAnswer `gorm:"ForeignKey:SessionID"`
+	TvToken        string
 }

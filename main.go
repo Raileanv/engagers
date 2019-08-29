@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/gorilla/websocket"
@@ -63,6 +64,16 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
 
+	tvToken := RandToken(4)
+
+	session := models.Session{}
+	DB.First(&session, id)
+
+	if session.ID != 0 {
+		session.TvToken = tvToken
+		models.DB.Save(&session)
+	}
+
 	if err != nil {
 		log.Println(err)
 		return
@@ -71,7 +82,7 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	client := &Client{hub: hub, conn: conn, sessionId: int(id), send: make(chan []byte, 256)}
 	client.hub.register <- client
 
-	client.send <- []byte("ХУЯК!!! ТЫ ПОДКЛЮЧИЛСЯ!!")
+	client.send <- []byte(tvToken)
 
 	go client.readPump()
 	go client.writePump()
@@ -91,6 +102,8 @@ func authChecker(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 }
+
+
 
 func main() {
 	defer DB.Close()
@@ -136,6 +149,20 @@ func main() {
 	m.Get("/users/auth/github/callback", AuthGithubCallbackHandler)
 	m.Post("/auth_with_temporary_token", AuthWithTempTokenHandler)
 	m.Get("/auth_with_github", AuthWithGithubHandler)
+	m.Get("/connect_to_session_for_tv", ConnectToSessionForTvHandler)
 
 	m.Run()
+}
+
+func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){
+	tvToken := r.FormValue("tv_token")
+	session := models.Session{}
+	models.DB.Find(&session, "tv_token = ?", tvToken)
+
+	var buf bytes.Buffer
+	buf.WriteString("/ws/")
+	buf.WriteString(string(session.ID))
+
+	url :=  buf.String()
+	http.Redirect(w, r, url, http.StatusFound)
 }
