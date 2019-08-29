@@ -160,7 +160,7 @@ func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){
 	models.DB.Find(&session, "tv_token = ?", tvToken)
 
 	var buf bytes.Buffer
-	buf.WriteString("/ws/")
+	buf.WriteString("ws://engagers-staging.herokuapp.com/ws/")
 	buf.WriteString(string(session.ID))
 
 	url :=  buf.String()
