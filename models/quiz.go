@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	_"gopkg.in/go-playground/validator.v9"
+)
+
 
 type Quiz struct {
 	gorm.Model

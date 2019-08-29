@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Conference struct {
@@ -18,11 +19,12 @@ type Conference struct {
 	Title       string    `json:"title" validate:"required"`
 	Description string    `json:"description"`
 	Thumbnail   string    `json:"thumbnail"`
-	StartAt     time.Time `json:"start_at" validate:"required"`
-	EndAt       time.Time `json:"end_at" validate:"required"`
+	StartAt     time.Time `json:"start_at"`
+	EndAt       time.Time `json:"end_at"`
 }
 
 type Conferences []Conference
+var validate *validator.Validate
 
 func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	mr, err := r.MultipartReader()
@@ -87,8 +89,12 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//mapRequestToConference(r, &conference)
-
+	validate = validator.New()
+	err = validate.Struct(conference)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	DB.Create(&conference)
 }
 

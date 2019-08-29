@@ -21,8 +21,8 @@ var (
 	}
 
 	upgrader = websocket.Upgrader{
-		ReadBufferSize:   1024,
-		WriteBufferSize:  1024,
+		ReadBufferSize:   100024,
+		WriteBufferSize:  100024,
 		HandshakeTimeout: 5 * time.Second,
 	}
 	DB = models.InitDB()
@@ -121,8 +121,8 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-	})
-	//}, authChecker)
+	//})
+	}, authChecker)
 
 	m.Get("/ws/:session_id", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
 		webSocketsHandler(hub, w, r, p)

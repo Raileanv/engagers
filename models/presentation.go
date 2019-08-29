@@ -18,13 +18,14 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Presentation struct {
 	gorm.Model
 	ConferenceId   uint   `json:"conference_id"`
 	UserId         uint   `json:"user_id"`
-	Title          string `json:"title"`
+	Title          string `json:"title" validate:"required"`
 	Description    string `json:"description"`
 	Thumbnail      string `json:"thumbnail"`
 	AttachmentLink string
@@ -153,6 +154,13 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	}
+
+	validate = validator.New()
+	err = validate.Struct(quizes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	presentation.Quiz = quizes
