@@ -6,8 +6,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/url"
-	"time"
 	"os"
+	"time"
 )
 
 //const connStr = "user=vrailean password=5b34b4ccc dbname=prezentr_admin_development host=localhost sslmode=disable"
