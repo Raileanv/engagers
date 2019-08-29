@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/jinzhu/gorm"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,48 +15,91 @@ import (
 type Conference struct {
 	gorm.Model
 	UserId      uint      `json:"user_id"`
-	Title       string    `json:"title"`
+	Title       string    `json:"title" validate:"required"`
 	Description string    `json:"description"`
 	Thumbnail   string    `json:"thumbnail"`
-	StartAt     time.Time `json:"start_at"`
-	EndAt       time.Time `json:"end_at"`
+	StartAt     time.Time `json:"start_at" validate:"required"`
+	EndAt       time.Time `json:"end_at" validate:"required"`
 }
 
 type Conferences []Conference
 
-func mapRequestToConference(request *http.Request, conference *Conference) {
-	layoutISO := "2006-01-02T15:04:05"
-	startAt, _ := time.Parse(layoutISO, request.FormValue("start_at"))
-	endAt, _ := time.Parse(layoutISO, request.FormValue("end_at"))
-
-	conference.StartAt = startAt
-	conference.EndAt = endAt
-	conference.UserId = CurrentUser.ID
-	conference.Title = request.FormValue("title")
-	conference.Description = request.FormValue("description")
-	conference.Thumbnail = request.FormValue("thumbnail")
-}
-
 func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	mr, err := r.MultipartReader()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var conference Conference
+	conference.UserId = CurrentUser.ID
+	for {
+		part, err := mr.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if part.FormName() == "title" {
+			data, err := ioutil.ReadAll(part)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			conference.Title = string(data)
+		}
+		if part.FormName() == "description" {
+			data, err := ioutil.ReadAll(part)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			conference.Description = string(data)
+		}
+		if part.FormName() == "start_at" {
+			layoutISO := "2006-01-02T15:04:05"
+			data, err := ioutil.ReadAll(part)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			startAt, err := time.Parse(layoutISO, string(data))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			conference.StartAt = startAt
+		}
+		if part.FormName() == "end_at" {
+			layoutISO := "2006-01-02T15:04:05"
+			data, err := ioutil.ReadAll(part)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			endAt, err := time.Parse(layoutISO, string(data))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			conference.StartAt = endAt
+		}
 	}
 
-	var conference Conference
-	mapRequestToConference(r, &conference)
+	//mapRequestToConference(r, &conference)
 
 	DB.Create(&conference)
 }
 
-func GetConferencesHandler(w http.ResponseWriter, r *http.Request){
+func GetConferencesHandler(w http.ResponseWriter, r *http.Request) {
 	var conferences Conferences
 	DB.Table("conferences").Scan(&conferences)
 	jsonConferences, _ := json.Marshal(conferences)
 	fmt.Fprint(w, string(jsonConferences))
 }
 
-func GetConferenceHandler(w http.ResponseWriter, r *http.Request, params martini.Params)  {
+func GetConferenceHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	id, _ := strconv.ParseInt(params["conference_id"], 10, 32)
 
 	conference := Conference{}

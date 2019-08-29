@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
-	"os"
 
 	"engagers/models"
 )
@@ -121,8 +121,8 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-
-	}, authChecker)
+	})
+	//}, authChecker)
 
 	m.Get("/ws/:session_id", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
 		webSocketsHandler(hub, w, r, p)
