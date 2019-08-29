@@ -163,7 +163,5 @@ func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){
 	bbb.WriteString("ws://engagers-staging.herokuapp.com/ws/")
 	bbb.WriteString(string(session.ID))
 
-	url :=  bbb.String()
-
-	http.Redirect(w, r, url, http.StatusFound)
+	w.Write(bbb.Bytes())
 }
