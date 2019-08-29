@@ -78,6 +78,11 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 }
 
 func authChecker(w http.ResponseWriter, r *http.Request) {
+	tvToken := r.Header.Get("X-Engagers-tvOS-UUID")
+	if tvToken != "" {
+		return
+	}
+
 	reqToken := r.Header.Get("Authorization")
 	models.FindUserByPubToken(reqToken)
 
