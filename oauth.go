@@ -76,10 +76,12 @@ func newGithubConfig() oauth2.Config {
 
 	redirectUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "users/auth/github/callback")
 	return oauth2.Config{
+		//ClientID:     "d535e0f5cad826235ff6",
+		//ClientSecret: "98ff1eeae3fa9dc64fcb31ecbc302ec3fe0ff0d5",
+		//RedirectURL: "http://localhost:3000/users/auth/github/callback",
 		ClientID:     os.Getenv("CLIENT_ID"),
 		ClientSecret: os.Getenv("CLIENT_SECRET"),
 		RedirectURL:  redirectUrl,
-		//RedirectURL: "http://localhost:3000/users/auth/github/callback",
 		Endpoint: github.Endpoint,
 		Scopes:   []string{"user"},
 	}

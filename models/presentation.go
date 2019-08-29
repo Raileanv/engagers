@@ -24,7 +24,7 @@ import (
 type Presentation struct {
 	gorm.Model
 	ConferenceId   uint   `json:"conference_id"`
-	UserId         uint   `json:"user_id"`
+	UserId         uint   `json:"user_id" validate:"required"`
 	Title          string `json:"title" validate:"required"`
 	Description    string `json:"description"`
 	Thumbnail      string `json:"thumbnail"`
@@ -157,11 +157,16 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validate = validator.New()
-	err = validate.Struct(quizes)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	//err = validate.Struct(quizes)
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//err = validate.Struct(session)
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
 
 	presentation.Quiz = quizes
 	presentation.Session = append(presentation.Session, session)

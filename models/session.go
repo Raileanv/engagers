@@ -12,7 +12,7 @@ type Session struct {
 	gorm.Model
 	StartAt        time.Time `gorm:"not null"`
 	EndAt          time.Time `gorm:"not null"`
-	PresentationID uint
+	PresentationID uint `validate:"required"`
 	ConferenceID   uint
 	QuizAnswers    []QuizAnswer `gorm:"ForeignKey:SessionID"`
 	TvToken        string

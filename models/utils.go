@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/url"
-	"os"
+	//"os"
 	"time"
 )
 
@@ -66,7 +66,8 @@ func FindUserByPubToken(token string) (user User) {
 
 func GenerateTempTokenUrl(tempToken string, baseUrl string) string {
 	var buf bytes.Buffer
-	buf.WriteString(baseUrl)
+	//buf.WriteString(baseUrl)
+	buf.WriteString("http://localhost:3000/")
 	v := url.Values{
 		"temporary_token": {tempToken},
 	}
