@@ -45,9 +45,9 @@ func InitDB() *gorm.DB {
 }
 
 type Model struct {
-	ID        int `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func FindUserByTempToken(token string) (user User) {
