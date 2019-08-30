@@ -78,7 +78,7 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	m.EventType = "statistics"
 	m.Data = string(statJson)
 
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 18)
 
 	m.Client.hub.broadcast <- *m
 }
@@ -102,7 +102,6 @@ func processMessage(m *Message) *Message {
 		go calcResultsOfQuiz(m, id)
 	case "ping_message":
 		m.EventType = "pong_message"
-
 	case "quiz_answer":
 		data, ok := m.Data.(map[string]interface{})
 

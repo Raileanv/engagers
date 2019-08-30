@@ -9,7 +9,7 @@ import (
 type Quiz struct {
 	gorm.Model
 	Question       string       `json:"question"`
-	PresentationID uint         `validate:"required"`
+	PresentationID uint         `json:"presentation_id" validate:"required"`
 	Type           string       `json:"type" validate:"required,oneof=input select"`
 	Answers        []Answer     `json:"answers" gorm:"ForeignKey:QuizID"`
 	QuizAnswers    []QuizAnswer `gorm:"ForeignKey:QuizID"`
