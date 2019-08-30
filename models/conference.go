@@ -44,20 +44,6 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if part.FormName() == "thumbnail" {
-			file, _ := ioutil.ReadAll(part)
-
-			if file != nil {
-
-				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
-
-				if err != nil {
-					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
-					http.Error(w, "Could not upload file", http.StatusNotFound)
-				}
-				conference.Thumbnail = generateAWSLink(fileName)
-			}
-		}
 		if part.FormName() == "title" {
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
@@ -65,6 +51,20 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			conference.Title = string(data)
+		}
+		if part.FormName() == "thumbnail" {
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), "conf_thumbnail", conference.Title, binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				conference.Thumbnail = generateAWSLink(fileName)
+			}
 		}
 		if part.FormName() == "description" {
 			data, err := ioutil.ReadAll(part)
