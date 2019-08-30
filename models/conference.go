@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Conference struct {
@@ -18,11 +20,12 @@ type Conference struct {
 	Title       string    `json:"title" validate:"required"`
 	Description string    `json:"description"`
 	Thumbnail   string    `json:"thumbnail"`
-	StartAt     time.Time `json:"start_at" validate:"required"`
-	EndAt       time.Time `json:"end_at" validate:"required"`
+	StartAt     time.Time `json:"start_at"`
+	EndAt       time.Time `json:"end_at"`
 }
 
 type Conferences []Conference
+var validate *validator.Validate
 
 func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	mr, err := r.MultipartReader()
@@ -40,6 +43,20 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+		if part.FormName() == "thumbnail" {
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				conference.Thumbnail = generateAWSLink(fileName)
+			}
 		}
 		if part.FormName() == "title" {
 			data, err := ioutil.ReadAll(part)
@@ -87,9 +104,15 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//mapRequestToConference(r, &conference)
-
+	validate = validator.New()
+	err = validate.Struct(conference)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	DB.Create(&conference)
+	jsn, _ := json.Marshal(conference)
+	_, _ = w.Write(jsn)
 }
 
 func GetConferencesHandler(w http.ResponseWriter, r *http.Request) {

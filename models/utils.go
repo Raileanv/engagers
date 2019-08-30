@@ -45,9 +45,9 @@ func InitDB() *gorm.DB {
 }
 
 type Model struct {
-	ID        int `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func FindUserByTempToken(token string) (user User) {
@@ -66,7 +66,8 @@ func FindUserByPubToken(token string) (user User) {
 
 func GenerateTempTokenUrl(tempToken string, baseUrl string) string {
 	var buf bytes.Buffer
-	buf.WriteString(baseUrl)
+	//buf.WriteString(baseUrl)
+	buf.WriteString("http://localhost:3000/")
 	v := url.Values{
 		"temporary_token": {tempToken},
 	}

@@ -21,8 +21,8 @@ var (
 	}
 
 	upgrader = websocket.Upgrader{
-		ReadBufferSize:   1024,
-		WriteBufferSize:  1024,
+		ReadBufferSize:   100024,
+		WriteBufferSize:  100024,
 		HandshakeTimeout: 5 * time.Second,
 	}
 	DB = models.InitDB()
@@ -32,9 +32,9 @@ func getMeHandler(w http.ResponseWriter, r *http.Request) {
 	reqToken := r.Header.Get("Authorization")
 	user := models.FindUserByPubToken(reqToken)
 
-	if reqToken == "" || (user == models.User{}) || (user.AccessToken == "") {
+	if !authenticate(reqToken){
 		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
-		http.Redirect(w, r, url, http.StatusFound)
+		http.Redirect(w, r, url, http.StatusUnauthorized)
 	}
 
 	getMeUrl := models.GenerateGetMeUrl(user.AccessToken)
@@ -57,11 +57,57 @@ func getMeHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func authChecker(w http.ResponseWriter, r *http.Request) {
+	tvToken := r.Header.Get("X-Engagers-tvOS-UUID")
+	if tvToken != "" {
+		return
+	}
+
+	reqToken := r.Header.Get("Authorization")
+
+	if !authenticate(reqToken){
+		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
+		http.Redirect(w, r, url, http.StatusUnauthorized)
+	}
+}
+
+func authenticate(reqToken string) bool {
+	models.FindUserByPubToken(reqToken)
+
+	if reqToken == "" || (models.CurrentUser == models.User{}) || (models.CurrentUser.AccessToken == "") {
+		return false
+	}
+	return true
+}
+
 func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params martini.Params) {
 	id, _ := strconv.ParseInt(params["session_id"], 10, 32)
+	publicToken, _ := params["public_token"]
+
+	if !authenticate(publicToken){
+		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
+		http.Redirect(w, r, url, http.StatusUnauthorized)
+	}
 
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
 	conn, err := upgrader.Upgrade(w, r, nil)
+
+	tvToken := RandToken(4)
+
+	session := models.Session{}
+	presentation := models.Presentation{}
+
+	DB.First(&session, id)
+
+	if session.ID != 0 {
+		DB.First(&presentation, session.PresentationID)
+
+		if models.CurrentUser.ID == presentation.UserId {
+			session.TvToken = tvToken
+			models.DB.Save(&session)
+		}
+	}
 
 	if err != nil {
 		log.Println(err)
@@ -71,20 +117,10 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	client := &Client{hub: hub, conn: conn, sessionId: int(id), send: make(chan []byte, 256)}
 	client.hub.register <- client
 
-	client.send <- []byte("ХУЯК!!! ТЫ ПОДКЛЮЧИЛСЯ!!")
+	client.send <- []byte(tvToken)
 
 	go client.readPump()
 	go client.writePump()
-}
-
-func authChecker(w http.ResponseWriter, r *http.Request) {
-	reqToken := r.Header.Get("Authorization")
-	models.FindUserByPubToken(reqToken)
-
-	if reqToken == "" || (models.CurrentUser == models.User{}) || (models.CurrentUser.AccessToken == "") {
-		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth_with_github")
-		http.Redirect(w, r, url, http.StatusFound)
-	}
 }
 
 func main() {
@@ -121,16 +157,32 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-	})
-	//}, authChecker)
-
-	m.Get("/ws/:session_id", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
-		webSocketsHandler(hub, w, r, p)
+	//})
 	}, authChecker)
+
+	m.Get("/ws/:session_id/:public_token", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
+		webSocketsHandler(hub, w, r, p)
+	})
 
 	m.Get("/users/auth/github/callback", AuthGithubCallbackHandler)
 	m.Post("/auth_with_temporary_token", AuthWithTempTokenHandler)
 	m.Get("/auth_with_github", AuthWithGithubHandler)
+	m.Get("/connect_to_session_for_tv", ConnectToSessionForTvHandler)
 
 	m.Run()
+}
+
+func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){
+	tvToken := r.FormValue("tv_token")
+	session := models.Session{}
+	presentation := models.Presentation{}
+	user := models.User{}
+
+	models.DB.Find(&session, "tv_token = ?", tvToken)
+	models.DB.Find(&presentation, session.PresentationID)
+	models.DB.Find(&user, presentation.UserId)
+
+	url := fmt.Sprintf("%v/%v/%v", "ws://engagers.herokuapp.com/ws", session.ID, user.PublicToken)
+
+	fmt.Fprint(w, url)
 }

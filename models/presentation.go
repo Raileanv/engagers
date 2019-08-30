@@ -18,18 +18,19 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Presentation struct {
 	gorm.Model
 	ConferenceId   uint   `json:"conference_id"`
-	UserId         uint   `json:"user_id"`
-	Title          string `json:"title"`
+	UserId         uint   `json:"user_id" validate:"required"`
+	Title          string `json:"title" validate:"required"`
 	Description    string `json:"description"`
 	Thumbnail      string `json:"thumbnail"`
-	AttachmentLink string
-	Session        []Session `gorm:"ForeignKey:PresentationID"`
-	Quiz           []Quiz    `gorm:"ForeignKey:PresentationID"`
+	Attachment     string`json:"attachment"`
+	Session        []Session `json:"sessions" gorm:"ForeignKey:PresentationID"`
+	Quiz           []Quiz    `json:"quizzes" gorm:"ForeignKey:PresentationID"`
 }
 
 type Presentations []Presentation
@@ -108,8 +109,18 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			presentation.Description = string(data)
 		}
 		if part.FormName() == "thumbnail" {
-			data, _ := ioutil.ReadAll(part)
-			presentation.Thumbnail = string(data)
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				presentation.Thumbnail = generateAWSLink(fileName)
+			}
 		}
 		if part.FormName() == "conference_id" {
 			data, _ := ioutil.ReadAll(part)
@@ -140,20 +151,12 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
 					http.Error(w, "Could not upload file", http.StatusNotFound)
 				}
-				presentation.AttachmentLink = generateAWSLink(fileName)
-			}
-		}
-
-		if part.FormName() == "quizes" {
-			jsonDecoder := json.NewDecoder(part)
-
-			err = jsonDecoder.Decode(&quizes)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+				presentation.Attachment = generateAWSLink(fileName)
 			}
 		}
 	}
+
+	validate = validator.New()
 
 	presentation.Quiz = quizes
 	presentation.Session = append(presentation.Session, session)
@@ -193,37 +196,30 @@ func PostAddSessionToPresentation(w http.ResponseWriter, r *http.Request, params
 
 func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
-	mr, err := r.MultipartReader()
+
+	quiz := Quiz{}
+
+	jsonDecoder := json.NewDecoder(r.Body)
+	fmt.Println("decoder ", jsonDecoder)
+	err := jsonDecoder.Decode(&quiz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	quizes := []Quiz{}
 
-	for {
-		part, err := mr.NextPart()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if part.FormName() == "quizes" {
-			jsonDecoder := json.NewDecoder(part)
-			fmt.Println("decoder ", jsonDecoder)
-			err = jsonDecoder.Decode(&quizes)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
+	presentation := Presentation{}
+	DB.Preload("Quiz").Preload("Quiz.Answers").First(&presentation, id)
+
+	if presentation.ID == 0 {
+		http.Error(w, "Could not find presentation", http.StatusInternalServerError)
+		return
 	}
-	for _, n := range quizes {
-		n.PresentationID = uint(id)
-		DB.Save(n)
-	}
-	jsn, _ := json.Marshal(quizes)
+
+	presentation.Quiz = append(presentation.Quiz, quiz)
+
+	DB.Save(presentation)
+
+	jsn, _ := json.Marshal(presentation)
 	w.Write(jsn)
 }
 
