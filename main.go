@@ -120,7 +120,7 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 
 	type initialResponse struct {
 		Presentation models.Presentation
-		TvToken string
+		TvToken string `json:"tv_token"`
 	}
 
 	response := initialResponse{Presentation: presentation, TvToken: tvToken}
