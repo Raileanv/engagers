@@ -227,6 +227,8 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder, title string, size int) (string, error) {
 	// create a unique file name for the file
 	filename = strings.Replace(filename, " ", "_", -1)
+	folder = strings.Replace(folder, " ", "_", -1)
+	title = strings.Replace(title, " ", "_", -1)
 	//tempFileName := folder + "/" + bson.NewObjectId().Hex() + filename
 	tempFileName := title + "/" + folder + "/" + filename
 
