@@ -111,6 +111,8 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	DB.Create(&conference)
+	jsn, _ := json.Marshal(conference)
+	_, _ = w.Write(jsn)
 }
 
 func GetConferencesHandler(w http.ResponseWriter, r *http.Request) {
