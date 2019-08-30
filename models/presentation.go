@@ -9,8 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	awsSessionPackage "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/globalsign/mgo/bson"
 	"github.com/go-martini/martini"
+	"strings"
+
+	"gopkg.in/go-playground/validator.v9"
 	//"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
@@ -18,7 +20,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type Presentation struct {
@@ -113,7 +114,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 
 			if file != nil {
 
-				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), "present_thumbnail", presentation.Title , binary.Size(file))
 
 				if err != nil {
 					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
@@ -145,7 +146,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 
 			if file != nil {
 
-				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+				fileName, err := uploadFileToS3(awsSession, file,  part.FileName(), "attachment", presentation.Title, binary.Size(file))
 
 				if err != nil {
 					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
@@ -223,9 +224,11 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 	w.Write(jsn)
 }
 
-func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename string, size int) (string, error) {
+func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder, title string, size int) (string, error) {
 	// create a unique file name for the file
-	tempFileName := "presentations/" + bson.NewObjectId().Hex() + filename
+	filename = strings.Replace(filename, " ", "_", -1)
+	//tempFileName := folder + "/" + bson.NewObjectId().Hex() + filename
+	tempFileName := folder + "/" + title + "/" + filename
 
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String("presentr-bucket"),
