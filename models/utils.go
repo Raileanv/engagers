@@ -45,7 +45,7 @@ func InitDB() *gorm.DB {
 }
 
 type Model struct {
-	ID        int `json:"id" gorm:"primary_key"`
+	ID        uint `json:"id" gorm:"primary_key"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
