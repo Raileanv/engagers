@@ -139,7 +139,7 @@ func AuthGithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		url := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "auth")
 		http.Redirect(w, r, url, http.StatusFound)
 	}
-	tempUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "temp_url_handler")
+	tempUrl := fmt.Sprintf("%v%v", "http://presentr-admin-panel.herokuapp.com/talks/", "temp_url_handler")
 	tempTokenURL := models.GenerateTempTokenUrl(models.CurrentUser.TemporaryToken, tempUrl)
 	http.Redirect(w, r, tempTokenURL, 301)
 }
