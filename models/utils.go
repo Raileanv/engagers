@@ -36,11 +36,11 @@ func InitDB() *gorm.DB {
 
 	//DB.DropTableIfExists(&User{}, &Conference{}, &Presentation{}, &Session{}, &Quiz{}, &Answer{}, &QuizAnswer{})
 	DB.AutoMigrate(&User{}, &Conference{}, &Presentation{}, &Session{}, &Quiz{}, &Answer{}, &QuizAnswer{})
-	//DB.Model(&Session{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
-	//DB.Model(&Quiz{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
-	//DB.Model(&Answer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
-	//DB.Model(&QuizAnswer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
-	//db.Model(&QuizAnswer{}).AddForeignKey("session_id", "sessions(id)", "CASCADE", "CASCADE")
+	DB.Model(&Session{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
+	DB.Model(&Quiz{}).AddForeignKey("presentation_id", "presentations(id)", "CASCADE", "CASCADE")
+	DB.Model(&Answer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
+	DB.Model(&QuizAnswer{}).AddForeignKey("quiz_id", "quizzes(id)", "CASCADE", "CASCADE")
+	DB.Model(&QuizAnswer{}).AddForeignKey("session_id", "sessions(id)", "CASCADE", "CASCADE")
 	return DB
 }
 
