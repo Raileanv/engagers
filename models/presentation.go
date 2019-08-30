@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/globalsign/mgo/bson"
 	"github.com/go-martini/martini"
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -22,7 +22,7 @@ import (
 )
 
 type Presentation struct {
-	gorm.Model
+	Model
 	ConferenceId   uint   `json:"conference_id"`
 	UserId         uint   `json:"user_id" validate:"required"`
 	Title          string `json:"title" validate:"required"`

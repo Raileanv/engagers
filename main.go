@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/gorilla/websocket"
@@ -101,7 +102,7 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	DB.First(&session, id)
 
 	if session.ID != 0 {
-		DB.First(&presentation, session.PresentationID)
+		DB.Preload("Quiz").Preload("Quiz.Answers").First(&presentation, session.PresentationID)
 
 		if models.CurrentUser.ID == presentation.UserId {
 			session.TvToken = tvToken
@@ -117,7 +118,15 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	client := &Client{hub: hub, conn: conn, sessionId: int(id), send: make(chan []byte, 256)}
 	client.hub.register <- client
 
-	client.send <- []byte(tvToken)
+	type initialResponse struct {
+		Presentation models.Presentation
+		TvToken string `json:"tv_token"`
+	}
+
+	response := initialResponse{Presentation: presentation, TvToken: tvToken}
+	jsn, _ := json.Marshal(response)
+
+	client.send <- jsn
 
 	go client.readPump()
 	go client.writePump()

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,7 +15,7 @@ import (
 )
 
 type Conference struct {
-	gorm.Model
+	Model
 	UserId      uint      `json:"user_id"`
 	Title       string    `json:"title" validate:"required"`
 	Description string    `json:"description"`
