@@ -29,8 +29,8 @@ type Presentation struct {
 	Description    string `json:"description"`
 	Thumbnail      string `json:"thumbnail"`
 	Attachment     string`json:"attachment"`
-	Session        []Session `gorm:"ForeignKey:PresentationID"`
-	Quiz           []Quiz    `gorm:"ForeignKey:PresentationID"`
+	Session        []Session `json:"sessions" gorm:"ForeignKey:PresentationID"`
+	Quiz           []Quiz    `json:"quizzes" gorm:"ForeignKey:PresentationID"`
 }
 
 type Presentations []Presentation
