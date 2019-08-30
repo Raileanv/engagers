@@ -174,6 +174,7 @@ func CreateUser(user *models.User, t *OToken, ui *GithubUserInfo) {
 	user.AccessToken = t.AccessToken
 	user.TemporaryToken = t.TemporaryToken
 	user.PublicToken = t.PublicToken
+	user.Login = ui.Login
 	user.Email = ui.Email
 	user.Name = ui.Name
 	user.GithubID = ui.ID

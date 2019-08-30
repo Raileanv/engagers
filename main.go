@@ -121,9 +121,10 @@ func webSocketsHandler(hub *Hub, w http.ResponseWriter, r *http.Request, params 
 	type initialResponse struct {
 		Presentation models.Presentation
 		TvToken string `json:"tv_token"`
+		user models.User
 	}
 
-	response := initialResponse{Presentation: presentation, TvToken: tvToken}
+	response := initialResponse{Presentation: presentation, TvToken: tvToken, user: models.CurrentUser}
 	jsn, _ := json.Marshal(response)
 
 	client.send <- jsn
