@@ -229,7 +229,7 @@ func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder,
 	filename = strings.Replace(filename, " ", "_", -1)
 	folder = strings.Replace(folder, " ", "_", -1)
 	title = strings.Replace(title, " ", "_", -1)
-	//tempFileName := folder + "/" + bson.NewObjectId().Hex() + filename
+
 	tempFileName := title + "/" + folder + "/" + filename
 
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
