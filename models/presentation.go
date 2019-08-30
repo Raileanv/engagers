@@ -228,7 +228,7 @@ func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder,
 	// create a unique file name for the file
 	filename = strings.Replace(filename, " ", "_", -1)
 	//tempFileName := folder + "/" + bson.NewObjectId().Hex() + filename
-	tempFileName := folder + "/" + title + "/" + filename
+	tempFileName := title + "/" + folder + "/" + filename
 
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String("presentr-bucket"),
