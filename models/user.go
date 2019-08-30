@@ -1,9 +1,7 @@
 package models
 
-import "github.com/jinzhu/gorm"
-
 type User struct {
-	gorm.Model
+	Model
 	GithubID       int `json:"github_id"`
 	Name           string `json:"name"`
 	TemporaryToken string `json:"temporary_token"`

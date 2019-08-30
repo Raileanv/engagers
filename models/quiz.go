@@ -1,13 +1,13 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 	_"gopkg.in/go-playground/validator.v9"
 )
 
 
 type Quiz struct {
-	gorm.Model
+	Model
 	Question       string       `json:"question"`
 	PresentationID uint         `json:"presentation_id" validate:"required"`
 	Type           string       `json:"type" validate:"required,oneof=input select"`
@@ -16,7 +16,7 @@ type Quiz struct {
 }
 
 type Answer struct {
-	gorm.Model
+	Model
 	Answer  string `json:"answer"`
 	Correct bool   `json:"correct"`
 	QuizID  uint `json:"quiz_id"`
