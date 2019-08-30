@@ -109,8 +109,18 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			presentation.Description = string(data)
 		}
 		if part.FormName() == "thumbnail" {
-			data, _ := ioutil.ReadAll(part)
-			presentation.Thumbnail = string(data)
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				presentation.Thumbnail = generateAWSLink(fileName)
+			}
 		}
 		if part.FormName() == "conference_id" {
 			data, _ := ioutil.ReadAll(part)
@@ -145,15 +155,15 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if part.FormName() == "quizes" {
-			jsonDecoder := json.NewDecoder(part)
-
-			err = jsonDecoder.Decode(&quizes)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
+		//if part.FormName() == "quizes" {
+		//	jsonDecoder := json.NewDecoder(part)
+		//
+		//	err = jsonDecoder.Decode(&quizes)
+		//	if err != nil {
+		//		http.Error(w, err.Error(), http.StatusInternalServerError)
+		//		return
+		//	}
+		//}
 	}
 
 	validate = validator.New()

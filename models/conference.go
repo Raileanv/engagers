@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
@@ -42,6 +43,20 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+		if part.FormName() == "thumbnail" {
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				conference.Thumbnail = generateAWSLink(fileName)
+			}
 		}
 		if part.FormName() == "title" {
 			data, err := ioutil.ReadAll(part)
