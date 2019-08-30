@@ -66,8 +66,7 @@ func FindUserByPubToken(token string) (user User) {
 
 func GenerateTempTokenUrl(tempToken string, baseUrl string) string {
 	var buf bytes.Buffer
-	//buf.WriteString(baseUrl)
-	buf.WriteString("http://localhost:3000/")
+	buf.WriteString(baseUrl)
 	v := url.Values{
 		"temporary_token": {tempToken},
 	}
