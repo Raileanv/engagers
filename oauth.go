@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"engagers/models"
+	"github.com/engagers/models"
 	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"

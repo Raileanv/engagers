@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"engagers/models"
+	"fmt"
+	"github.com/engagers/models"
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
@@ -49,8 +50,9 @@ func (c *Client) readPump() {
 		mes := Message{Client: c, SelfSended: false}
 
 		json.Unmarshal(message, &mes)
-
+		fmt.Println("first", mes)
 		processMessage(&mes)
+		fmt.Println("second", mes)
 
 		c.hub.broadcast <- mes
 	}

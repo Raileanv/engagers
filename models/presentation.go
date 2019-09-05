@@ -101,6 +101,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		fmt.Println(part.FormName())
 		if part.FormName() == "title" {
 			data, _ := ioutil.ReadAll(part)
 			presentation.Title = string(data)
