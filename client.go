@@ -92,10 +92,10 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 		quiz.Question,
 	}
 
-	statJson, _ := json.Marshal(r)
+	//statJson, _ := json.Marshal(r)
 
 	m.EventType = "statistics"
-	m.Data = string(statJson)
+	m.Data = r
 
 	time.Sleep(time.Second * 18)
 
