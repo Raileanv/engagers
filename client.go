@@ -98,7 +98,8 @@ func processMessage(m *Message) *Message {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
 			idfl := id.(float64)
-	idint := int(idfl)
+			idint := int(idfl)
+
 			DB.Preload("Quiz.Answers").First(&quiz, idint)
 			fmt.Println("FIND QUIZ", quiz)
 			fmt.Println("ID", id)
