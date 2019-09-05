@@ -118,8 +118,8 @@ func processMessage(m *Message) *Message {
 
 			DB.Preload("Answers").First(&quiz, idint)
 
-			jstr, _ := json.Marshal(quiz)
-			m.Data = jstr
+			//jstr, _ := json.Marshal(quiz)
+			m.Data = quiz
 		}
 		go calcResultsOfQuiz(m, id)
 	case "ping_message":
