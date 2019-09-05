@@ -112,9 +112,8 @@ func processMessage(m *Message) *Message {
 			idfl := id.(float64)
 			idint := int(idfl)
 
-			DB.Preload("Quiz.Answers").First(&quiz, idint)
-			fmt.Println("FIND QUIZ", quiz)
-			fmt.Println("ID", id)
+			DB.Preload("Answer").First(&quiz, idint)
+
 			jstr, _ := json.Marshal(quiz)
 			m.Data = string(jstr)
 		}
