@@ -111,10 +111,10 @@ func processMessage(m *Message) *Message {
 		if ok {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
-			idfl := id.(float64)
-			idint := int(idfl)
+			idfl := id.(int)
+			//idint := int(idfl)
 
-			DB.Preload("Answers").First(&quiz, idint)
+			DB.Preload("Answers").First(&quiz, idfl)
 
 			m.Data = quiz
 		}
