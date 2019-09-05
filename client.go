@@ -111,10 +111,10 @@ func processMessage(m *Message) *Message {
 		if ok {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
-			idfl := id.(int)
-			//idint := int(idfl)
 
-			DB.Preload("Answers").First(&quiz, idfl)
+			id, _ := strconv.ParseInt(id.(string), 10, 32)
+
+			DB.Preload("Answers").First(&quiz, id)
 
 			m.Data = quiz
 		}
