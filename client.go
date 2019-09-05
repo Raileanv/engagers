@@ -67,6 +67,7 @@ type statistics struct {
 
 func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	var stat []statistics
+	quiz := &models.Quiz{}
 	session_id := m.Client.sessionId
 
 	DB.Raw(`SELECT count(answer) amount, answer, correct from quiz_answers q
@@ -76,7 +77,18 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	and q.session_id = ?
 	group by answer, correct`, quiz_id, session_id).Scan(&stat)
 
-	statJson, _ := json.Marshal(stat)
+	DB.First(&quiz, quiz_id)
+	type resp struct {
+		Answers []statistics
+		Question *models.Quiz
+	}
+
+	r := resp{
+		stat,
+		quiz,
+	}
+
+	statJson, _ := json.Marshal(r)
 
 	m.EventType = "statistics"
 	m.Data = string(statJson)
