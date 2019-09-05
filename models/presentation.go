@@ -226,14 +226,14 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 
 func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder, title string, size int) (string, error) {
 	// create a unique file name for the file
-	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
+	reg, _ := regexp.Compile("[^a-zA-Z0-9&&[^./]+")
 
 	filename = reg.ReplaceAllString(filename, "")
 	folder = reg.ReplaceAllString(folder, "")
 	title = reg.ReplaceAllString(title, "")
 
 	tempFileName := fmt.Sprintf("$s/%s/%s", title, folder, filename )
-	
+
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String("presentr-bucket"),
 		Key:                  aws.String(tempFileName),
