@@ -77,7 +77,11 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	and q.session_id = ?
 	group by answer, correct`, quiz_id, session_id).Scan(&stat)
 
-	DB.First(&quiz, quiz_id)
+
+	idfl := quiz_id.(float64)
+	idint := int(idfl)
+
+	DB.First(&quiz, idint)
 	type resp struct {
 		Answers []statistics `json:"answers"`
 		Question string `json:"question"`
@@ -112,10 +116,10 @@ func processMessage(m *Message) *Message {
 			idfl := id.(float64)
 			idint := int(idfl)
 
-			DB.Preload("Answer").First(&quiz, idint)
+			DB.Preload("Answers").First(&quiz, idint)
 
 			jstr, _ := json.Marshal(quiz)
-			m.Data = string(jstr)
+			m.Data = jstr
 		}
 		go calcResultsOfQuiz(m, id)
 	case "ping_message":
