@@ -79,8 +79,8 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 
 	DB.First(&quiz, quiz_id)
 	type resp struct {
-		Answers []statistics
-		Question string
+		Answers []statistics `json:"answers"`
+		Question string `json:"question"`
 	}
 
 	r := resp{
