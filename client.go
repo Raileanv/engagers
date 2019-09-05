@@ -80,12 +80,12 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	DB.First(&quiz, quiz_id)
 	type resp struct {
 		Answers []statistics
-		Question *models.Quiz
+		Question string
 	}
 
 	r := resp{
 		stat,
-		quiz,
+		quiz.Question,
 	}
 
 	statJson, _ := json.Marshal(r)
