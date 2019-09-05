@@ -97,8 +97,9 @@ func processMessage(m *Message) *Message {
 		if ok {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
-
-			DB.Preload("Quiz.Answers").First(&quiz, id.(int))
+			idfl := id.(float64)
+	idint := int(idfl)
+			DB.Preload("Quiz.Answers").First(&quiz, idint)
 			fmt.Println("FIND QUIZ", quiz)
 			fmt.Println("ID", id)
 			jstr, _ := json.Marshal(quiz)
