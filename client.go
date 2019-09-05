@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	//"github.com/engagers/models"
 	"engagers/models"
 	"github.com/gorilla/websocket"
 	"log"
@@ -49,8 +51,9 @@ func (c *Client) readPump() {
 		mes := Message{Client: c, SelfSended: false}
 
 		json.Unmarshal(message, &mes)
-
+		fmt.Println("first", mes)
 		processMessage(&mes)
+		fmt.Println("second", mes)
 
 		c.hub.broadcast <- mes
 	}
@@ -94,8 +97,11 @@ func processMessage(m *Message) *Message {
 		if ok {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
-
-			DB.Preload("Answers").Find(&quiz, id)
+			idfl := id.(float64)
+	idint := int(idfl)
+			DB.Preload("Quiz.Answers").First(&quiz, idint)
+			fmt.Println("FIND QUIZ", quiz)
+			fmt.Println("ID", id)
 			jstr, _ := json.Marshal(quiz)
 			m.Data = string(jstr)
 		}

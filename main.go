@@ -12,8 +12,9 @@ import (
 	"strconv"
 	"time"
 
+	//"github.com/engagers/models"
 	"engagers/models"
-)
+	)
 
 var (
 	timeout = time.Duration(5 * time.Second)
@@ -167,8 +168,8 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-	//})
-	}, authChecker)
+	})
+	//}, authChecker)
 
 	m.Get("/ws/:session_id/:public_token", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
 		webSocketsHandler(hub, w, r, p)

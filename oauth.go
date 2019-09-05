@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	//"github.com/engagers/models"
 	"engagers/models"
 	"fmt"
 	"github.com/google/uuid"
@@ -140,6 +141,7 @@ func AuthGithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 	tempUrl := fmt.Sprintf("%v%v", "http://presentr-admin-panel.herokuapp.com/", "temp_url_handler")
+	//tempUrl := fmt.Sprintf("%v%v", "http://localhost:3000/", "temp_url_handler")
 	tempTokenURL := models.GenerateTempTokenUrl(models.CurrentUser.TemporaryToken, tempUrl)
 	http.Redirect(w, r, tempTokenURL, 301)
 }
