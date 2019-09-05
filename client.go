@@ -69,6 +69,7 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	var stat []statistics
 	quiz := &models.Quiz{}
 	session_id := m.Client.sessionId
+	quiz_id, _ = strconv.ParseInt(quiz_id.(string), 10, 32)
 
 	time.Sleep(time.Second * 18)
 
@@ -80,10 +81,10 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	group by answer, correct`, quiz_id, session_id).Scan(&stat)
 
 
-	idfl := quiz_id.(float64)
-	idint := int(idfl)
 
-	DB.First(&quiz, idint)
+
+
+	DB.First(&quiz, quiz_id)
 	type resp struct {
 		Answers []statistics `json:"answers"`
 		Question string `json:"question"`
