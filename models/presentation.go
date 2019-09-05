@@ -10,9 +10,8 @@ import (
 	awsSessionPackage "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-martini/martini"
-	"strings"
-
 	"gopkg.in/go-playground/validator.v9"
+	"regexp"
 	//"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
@@ -227,12 +226,14 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 
 func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder, title string, size int) (string, error) {
 	// create a unique file name for the file
-	filename = strings.Replace(filename, " ", "_", -1)
-	folder = strings.Replace(folder, " ", "_", -1)
-	title = strings.Replace(title, " ", "_", -1)
+	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
 
-	tempFileName := title + "/" + folder + "/" + filename
+	filename = reg.ReplaceAllString(filename, "")
+	folder = reg.ReplaceAllString(folder, "")
+	title = reg.ReplaceAllString(title, "")
 
+	tempFileName := fmt.Sprintf("$s/%s/%s", title, folder, filename )
+	
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String("presentr-bucket"),
 		Key:                  aws.String(tempFileName),
