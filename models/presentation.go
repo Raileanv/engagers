@@ -232,7 +232,7 @@ func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder,
 	folder = reg.ReplaceAllString(folder, "")
 	title = reg.ReplaceAllString(title, "")
 
-	tempFileName := fmt.Sprintf("$s/%s/%s", title, folder, filename )
+	tempFileName := fmt.Sprintf("%s/%s/%s", title, folder, filename )
 
 	_, err := s3.New(s).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String("presentr-bucket"),
