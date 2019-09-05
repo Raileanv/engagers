@@ -70,6 +70,8 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	quiz := &models.Quiz{}
 	session_id := m.Client.sessionId
 
+	time.Sleep(time.Second * 18)
+
 	DB.Raw(`SELECT count(answer) amount, answer, correct from quiz_answers q
 	join answers a
 	on a.id = q.answer_id
@@ -92,12 +94,8 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 		quiz.Question,
 	}
 
-	//statJson, _ := json.Marshal(r)
-
 	m.EventType = "statistics"
 	m.Data = r
-
-	time.Sleep(time.Second * 18)
 
 	m.Client.hub.broadcast <- *m
 }
@@ -118,7 +116,6 @@ func processMessage(m *Message) *Message {
 
 			DB.Preload("Answers").First(&quiz, idint)
 
-			//jstr, _ := json.Marshal(quiz)
 			m.Data = quiz
 		}
 		go calcResultsOfQuiz(m, id)
