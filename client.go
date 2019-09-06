@@ -162,7 +162,7 @@ func processMessage(m *Message) *Message {
 
 
 
-		quizAnswer := models.QuizAnswer{SessionID: uint(m.Client.sessionId), QuizID: uint(answer_id)}
+		quizAnswer := models.QuizAnswer{SessionID: uint(m.Client.sessionId), QuizID: uint(quiz_id)}
 		if ok {
 			quizAnswer.AnswerID = uint(answer_id)
 			quizAnswer.UserID = models.CurrentUser.ID
