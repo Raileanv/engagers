@@ -13,7 +13,7 @@ import (
 	"time"
 
 	//"github.com/engagers/models"
-	"engagers/models"
+	"github.com/Raileanv/engagers/models"
 	)
 
 var (

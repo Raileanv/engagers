@@ -2,8 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	//"github.com/engagers/models"
-	"engagers/models"
+	"github.com/Raileanv/engagers/models"
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
