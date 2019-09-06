@@ -64,6 +64,7 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	fmt.Println("----------------Start Get Presentation")
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 
 	presentation := Presentation{}

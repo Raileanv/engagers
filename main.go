@@ -145,6 +145,7 @@ func main() {
 		r.Get("/get_me", getMeHandler)
 
 		r.Group("/presentations", func(rr martini.Router) {
+			rr.Get("/per_user", GetPresentationsPerUser)
 			rr.Post("/", models.CreatePresentationHandler)
 			rr.Post("/:presentation_id/session", func(w http.ResponseWriter, r *http.Request, params martini.Params) {
 				models.PostAddSessionToPresentation(w, r, params)
@@ -159,7 +160,7 @@ func main() {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
 			rr.Get("/", models.GetPresentationsHandler)
-			rr.Get("/per_user", GetPresentationsPerUserHandler)
+
 		})
 
 		r.Group("/conference", func(rr martini.Router) {
@@ -184,7 +185,8 @@ func main() {
 	m.Run()
 }
 
-func GetPresentationsPerUserHandler(w http.ResponseWriter, r *http.Request) {
+func GetPresentationsPerUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("----------------Start Get Presentations Per User")
 	var presentations models.Presentations
 	DB.Table("presentations").Where("user_id = ?", models.CurrentUser.ID).Scan(&presentations)
 
