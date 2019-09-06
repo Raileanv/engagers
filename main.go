@@ -13,7 +13,7 @@ import (
 	"time"
 
 	//"github.com/engagers/models"
-	"engagers/models"
+	"github.com/Raileanv/engagers/models"
 	)
 
 var (
@@ -145,6 +145,7 @@ func main() {
 		r.Get("/get_me", getMeHandler)
 
 		r.Group("/presentations", func(rr martini.Router) {
+			rr.Get("/per_user", GetPresentationsPerUser)
 			rr.Post("/", models.CreatePresentationHandler)
 			rr.Post("/:presentation_id/session", func(w http.ResponseWriter, r *http.Request, params martini.Params) {
 				models.PostAddSessionToPresentation(w, r, params)
@@ -159,7 +160,7 @@ func main() {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
 			rr.Get("/", models.GetPresentationsHandler)
-			rr.Get("/for_vasia", models.GetPresentationsPerUserHandler)
+
 		})
 
 		r.Group("/conference", func(rr martini.Router) {
@@ -169,7 +170,7 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-	//})
+
 	}, authChecker)
 
 	m.Get("/ws/:session_id/:public_token", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
@@ -182,6 +183,15 @@ func main() {
 	m.Get("/connect_to_session_for_tv", ConnectToSessionForTvHandler)
 
 	m.Run()
+}
+
+func GetPresentationsPerUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("----------------Start Get Presentations Per User")
+	var presentations models.Presentations
+	DB.Table("presentations").Where("user_id = ?", models.CurrentUser.ID).Scan(&presentations)
+
+	jsonPresentations, _ := json.Marshal(presentations)
+	fmt.Fprint(w, string(jsonPresentations))
 }
 
 func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){

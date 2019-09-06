@@ -11,11 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-martini/martini"
 	"gopkg.in/go-playground/validator.v9"
-	"regexp"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -28,6 +28,7 @@ type Presentation struct {
 	Description    string `json:"description"`
 	Thumbnail      string `json:"thumbnail"`
 	Attachment     string`json:"attachment"`
+	Hint 			string `json:"hint"`
 	Session        []Session `json:"sessions" gorm:"ForeignKey:PresentationID"`
 	Quiz           []Quiz    `json:"quizzes" gorm:"ForeignKey:PresentationID"`
 }
@@ -61,15 +62,10 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonPresentations))
 }
 
-func GetPresentationsPerUserHandler(w http.ResponseWriter, r *http.Request) {
-	var presentations Presentations
-	DB.Table("presentations").Where("user_id = ?", CurrentUser.ID).Scan(&presentations)
 
-	jsonPresentations, _ := json.Marshal(presentations)
-	fmt.Fprint(w, string(jsonPresentations))
-}
 
 func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	fmt.Println("----------------Start Get Presentation")
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 
 	presentation := Presentation{}
@@ -114,6 +110,10 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 		if part.FormName() == "description" {
 			data, _ := ioutil.ReadAll(part)
 			presentation.Description = string(data)
+		}
+		if part.FormName() == "hint" {
+			data, _ := ioutil.ReadAll(part)
+			presentation.Hint = string(data)
 		}
 		if part.FormName() == "thumbnail" {
 			file, _ := ioutil.ReadAll(part)
