@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	//"github.com/engagers/models"
 	"engagers/models"
 	"github.com/gorilla/websocket"
@@ -51,18 +50,17 @@ func (c *Client) readPump() {
 		mes := Message{Client: c, SelfSended: false}
 
 		json.Unmarshal(message, &mes)
-		fmt.Println("first", mes)
+
 		processMessage(&mes)
-		fmt.Println("second", mes)
 
 		c.hub.broadcast <- mes
 	}
 }
 
 type statistics struct {
-	Amount  int
-	Answer  string
-	Correct bool
+	Amount  int `json:"amount"`
+	Answer  string `json:"answer"`
+	Correct bool `json:"correct"`
 }
 
 func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
