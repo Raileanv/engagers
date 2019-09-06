@@ -65,7 +65,102 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonPresentations))
 }
 
+func UpdatePresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params){
+	logger.Infoln( "----------------Start Put update Presentation")
+	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 
+	var presentation Presentation
+	var session Session
+
+	DB.First(&presentation, id)
+
+	if presentation.UserId != CurrentUser.ID {
+		http.Error(w, "You can edit only your presentations", http.StatusUnauthorized)
+		return
+	}
+
+	mr, err := r.MultipartReader()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	for {
+		part, err := mr.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Println(part.FormName())
+		if part.FormName() == "title" {
+			data, _ := ioutil.ReadAll(part)
+			presentation.Title = string(data)
+		}
+		if part.FormName() == "description" {
+			data, _ := ioutil.ReadAll(part)
+			presentation.Description = string(data)
+		}
+		if part.FormName() == "hint" {
+			data, _ := ioutil.ReadAll(part)
+			presentation.Hint = string(data)
+		}
+		if part.FormName() == "thumbnail" {
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file, part.FileName(), "present_thumbnail", presentation.Title , binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				presentation.Thumbnail = generateAWSLink(fileName)
+			}
+		}
+		if part.FormName() == "conference_id" {
+			data, _ := ioutil.ReadAll(part)
+			conference_id, _ := strconv.ParseInt(string(data), 10, 32)
+			session.ConferenceID = uint(conference_id)
+		}
+		if part.FormName() == "start_at" {
+			data, _ := ioutil.ReadAll(part)
+			startAt, _ := time.Parse(time.RFC3339, string(data))
+			session.StartAt = startAt
+		}
+		if part.FormName() == "end_at" {
+			data, _ := ioutil.ReadAll(part)
+			endAt, _ := time.Parse(time.RFC3339, string(data))
+			session.EndAt = endAt
+		}
+
+		if part.FormName() == "presentation_attachment" {
+			file, _ := ioutil.ReadAll(part)
+
+			if file != nil {
+
+				fileName, err := uploadFileToS3(awsSession, file,  part.FileName(), "attachment", presentation.Title, binary.Size(file))
+
+				if err != nil {
+					_, _ = fmt.Fprintf(w, "Could not upload file \n", err)
+					http.Error(w, "Could not upload file", http.StatusNotFound)
+				}
+				presentation.Attachment = generateAWSLink(fileName)
+			}
+		}
+	}
+
+	validate = validator.New()
+
+	DB.Save(&presentation)
+
+	jsonPresentation, err := json.Marshal(presentation)
+
+	w.Write(jsonPresentation)
+}
 
 func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	logger.Infoln( "----------------Start Get all Presentation")
@@ -92,7 +187,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 
 	mr, err := r.MultipartReader()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -102,7 +197,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		fmt.Println(part.FormName())
@@ -214,7 +309,7 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 	fmt.Println("decoder ", jsonDecoder)
 	err := jsonDecoder.Decode(&quiz)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -222,7 +317,7 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 	DB.Preload("Quiz").Preload("Quiz.Answers").First(&presentation, id)
 
 	if presentation.ID == 0 {
-		http.Error(w, "Could not find presentation", http.StatusInternalServerError)
+		http.Error(w, "Could not find presentation", http.StatusNotFound)
 		return
 	}
 
