@@ -19,8 +19,8 @@ type Client struct {
 type Message struct {
 	EventType  string      `json:"event_type"`
 	Data       interface{} `json:"data"`
-	SelfSended bool
-	Client     *Client
+	SelfSended bool `json:"self_sended"`
+	Client     *Client `json:"client"`
 }
 
 var (
