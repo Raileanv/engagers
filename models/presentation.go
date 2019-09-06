@@ -18,6 +18,7 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"github.com/sirupsen/logrus"
 )
 
 type Presentation struct {
@@ -36,6 +37,7 @@ type Presentation struct {
 type Presentations []Presentation
 
 var (
+	logger = logrus.New()
 	awsSession, _ = awsSessionPackage.NewSession(&aws.Config{
 		Region: aws.String("eu-west-2"),
 		Credentials: credentials.NewStaticCredentials(
@@ -56,6 +58,7 @@ func mapRequestToSession(request *http.Request, session *Session) {
 }
 
 func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Infoln( "----------------Start Get all Presentations")
 	var presentations Presentations
 	DB.Table("presentations").Scan(&presentations)
 	jsonPresentations, _ := json.Marshal(presentations)
@@ -65,7 +68,7 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	fmt.Println("----------------Start Get Presentation")
+	logger.Infoln( "----------------Start Get all Presentation")
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 
 	presentation := Presentation{}
@@ -80,7 +83,7 @@ func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params marti
 }
 
 func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
-
+	logger.Infoln( "----------------Start Post create Presentation")
 	var presentation Presentation
 	var session Session
 	var quizes []Quiz
@@ -174,6 +177,7 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPresentationSessionsHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	logger.Infoln( "----------------Start Get all sessions for Presentation")
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 	var presentation Presentation
 
@@ -187,6 +191,7 @@ func GetPresentationSessionsHandler(w http.ResponseWriter, r *http.Request, para
 }
 
 func PostAddSessionToPresentation(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	logger.Infoln( "----------------Start POST add session to Presentation")
 	var session Session
 
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
@@ -200,6 +205,7 @@ func PostAddSessionToPresentation(w http.ResponseWriter, r *http.Request, params
 }
 
 func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	logger.Infoln( "----------------Start POST add quiz to Presentation")
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)
 
 	quiz := Quiz{}
@@ -229,7 +235,7 @@ func PostAddQuizToPresentation(w http.ResponseWriter, r *http.Request, params ma
 }
 
 func uploadFileToS3(s *awsSessionPackage.Session, file []byte, filename, folder, title string, size int) (string, error) {
-	// create a unique file name for the file
+	logger.Infoln( "----------------Start uploading file")
 	reg, _ := regexp.Compile("[^a-zA-Z0-9&&[^./]+")
 
 	filename = reg.ReplaceAllString(filename, "")
