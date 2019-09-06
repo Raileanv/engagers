@@ -168,8 +168,8 @@ func main() {
 				models.GetConferenceHandler(w, r, params)
 			})
 		})
-	})
-	//}, authChecker)
+	//})
+	}, authChecker)
 
 	m.Get("/ws/:session_id/:public_token", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
 		webSocketsHandler(hub, w, r, p)
