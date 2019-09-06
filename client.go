@@ -80,10 +80,6 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	and q.session_id = ?
 	group by answer, correct`, quiz_id, session_id).Scan(&stat)
 
-
-
-
-
 	DB.First(&quiz, quiz_id)
 	type resp struct {
 		Answers []statistics `json:"answers"`

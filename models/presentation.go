@@ -12,7 +12,6 @@ import (
 	"github.com/go-martini/martini"
 	"gopkg.in/go-playground/validator.v9"
 	"regexp"
-	//"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -46,9 +45,8 @@ var (
 )
 
 func mapRequestToSession(request *http.Request, session *Session) {
-	layoutISO := "2006-01-02T15:04:05"
-	startAt, _ := time.Parse(layoutISO, request.FormValue("start_at"))
-	endAt, _ := time.Parse(layoutISO, request.FormValue("end_at"))
+	startAt, _ := time.Parse(time.RFC3339, request.FormValue("start_at"))
+	endAt, _ := time.Parse(time.RFC3339, request.FormValue("end_at"))
 	conferenceId, _ := strconv.ParseInt(request.FormValue("conference_id"), 10, 32)
 
 	session.ConferenceID = uint(conferenceId)
@@ -129,16 +127,14 @@ func CreatePresentationHandler(w http.ResponseWriter, r *http.Request) {
 			session.ConferenceID = uint(conference_id)
 		}
 		if part.FormName() == "start_at" {
-			layoutISO := "2006-01-02T15:04:05"
 			data, _ := ioutil.ReadAll(part)
-			startAt, _ := time.Parse(layoutISO, string(data))
+			startAt, _ := time.Parse(time.RFC3339, string(data))
 			session.StartAt = startAt
 		}
 		if part.FormName() == "end_at" {
-			layoutISO := "2006-01-02T15:04:05"
 			data, _ := ioutil.ReadAll(part)
-			endAt, _ := time.Parse(layoutISO, string(data))
-			session.StartAt = endAt
+			endAt, _ := time.Parse(time.RFC3339, string(data))
+			session.EndAt = endAt
 		}
 
 		if part.FormName() == "presentation_attachment" {

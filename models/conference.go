@@ -75,13 +75,12 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 			conference.Description = string(data)
 		}
 		if part.FormName() == "start_at" {
-			layoutISO := "2006-01-02T15:04:05"
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			startAt, err := time.Parse(layoutISO, string(data))
+			startAt, err := time.Parse(time.RFC3339, string(data))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -89,13 +88,12 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 			conference.StartAt = startAt
 		}
 		if part.FormName() == "end_at" {
-			layoutISO := "2006-01-02T15:04:05"
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			endAt, err := time.Parse(layoutISO, string(data))
+			endAt, err := time.Parse(time.RFC3339, string(data))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
