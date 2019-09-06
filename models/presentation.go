@@ -61,9 +61,10 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonPresentations))
 }
 
-func GetPresentationsForVasiaHandler(w http.ResponseWriter, r *http.Request) {
+func GetPresentationsPerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var presentations Presentations
-	DB.Where("user_id = ?", CurrentUser.ID).Find(&presentations)
+	DB.Table("presentations").Where("user_id = ?", CurrentUser.ID).Scan(&presentations)
+
 	jsonPresentations, _ := json.Marshal(presentations)
 	fmt.Fprint(w, string(jsonPresentations))
 }
