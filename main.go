@@ -159,7 +159,7 @@ func main() {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
 			rr.Get("/", models.GetPresentationsHandler)
-			rr.Get("/for_vasia", models.GetPresentationsForVasiaHandler)
+			rr.Get("/for_vasia", models.GetPresentationsPerUserHandler)
 		})
 
 		r.Group("/conference", func(rr martini.Router) {
