@@ -61,13 +61,7 @@ func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(jsonPresentations))
 }
 
-func GetPresentationsPerUserHandler(w http.ResponseWriter, r *http.Request) {
-	var presentations Presentations
-	DB.Table("presentations").Where("user_id = ?", CurrentUser.ID).Scan(&presentations)
 
-	jsonPresentations, _ := json.Marshal(presentations)
-	fmt.Fprint(w, string(jsonPresentations))
-}
 
 func GetPresentationHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	id, _ := strconv.ParseInt(params["presentation_id"], 10, 32)

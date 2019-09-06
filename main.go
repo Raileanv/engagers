@@ -159,7 +159,7 @@ func main() {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
 			rr.Get("/", models.GetPresentationsHandler)
-			rr.Get("/for_vasia", models.GetPresentationsPerUserHandler)
+			rr.Get("/per_user", GetPresentationsPerUserHandler)
 		})
 
 		r.Group("/conference", func(rr martini.Router) {
@@ -182,6 +182,14 @@ func main() {
 	m.Get("/connect_to_session_for_tv", ConnectToSessionForTvHandler)
 
 	m.Run()
+}
+
+func GetPresentationsPerUserHandler(w http.ResponseWriter, r *http.Request) {
+	var presentations models.Presentations
+	DB.Table("presentations").Where("user_id = ?", models.CurrentUser.ID).Scan(&presentations)
+
+	jsonPresentations, _ := json.Marshal(presentations)
+	fmt.Fprint(w, string(jsonPresentations))
 }
 
 func ConnectToSessionForTvHandler(w http.ResponseWriter, r *http.Request){
