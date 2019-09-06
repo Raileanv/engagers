@@ -7,8 +7,9 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"net/url"
 	"time"
-	"os"
+	//"os"
 )
+const connStr = "postgres://rtsyaklfvpruvn:6c69db88d115b1c640451c4c98cb5313ed6e46778e4d054362e551bf315d9487@ec2-174-129-227-80.compute-1.amazonaws.com:5432/des5e73i46vinp"
 
 //const connStr = "user=vrailean password=5b34b4ccc dbname=prezentr_admin_development host=localhost sslmode=disable"
 
@@ -29,7 +30,7 @@ func IsCurrentUserPresent() (b bool) {
 
 func InitDB() *gorm.DB {
 	fmt.Println(DB)
-	DB, _ = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	DB, _ = gorm.Open("postgres", connStr)
 	if DB == nil {
 		panic("db nil")
 	}
