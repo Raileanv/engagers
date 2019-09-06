@@ -66,7 +66,15 @@ func calcResultsOfQuiz(m *Message, quiz_id interface{}) {
 	var stat []statistics
 	quiz := &models.Quiz{}
 	session_id := m.Client.sessionId
-	quiz_id, _ = strconv.ParseInt(quiz_id.(string), 10, 32)
+	id, ok := quiz_id.(string)
+	if !ok {
+		m.EventType = "BadRequesr"
+		m.Data = "something went wrong, check format of params"
+
+		m.Client.hub.broadcast <- *m
+		return
+	}
+	quiz_id, _ = strconv.ParseInt(id, 10, 32)
 
 	time.Sleep(time.Second * 18)
 
@@ -106,9 +114,18 @@ func processMessage(m *Message) *Message {
 			m.EventType = "quiz"
 			quiz := models.Quiz{}
 
-			id, _ := strconv.ParseInt(id.(string), 10, 32)
+			id, ok := id.(string)
 
-			DB.Preload("Answers").First(&quiz, id)
+			if !ok {
+				m.EventType = "BadRequesr"
+				m.Data = "something went wrong, check format of params"
+
+				return m
+			}
+
+			quiz_id, _ := strconv.ParseInt(id, 10, 32)
+
+			DB.Preload("Answers").First(&quiz, quiz_id)
 
 			m.Data = quiz
 		}
@@ -118,10 +135,34 @@ func processMessage(m *Message) *Message {
 	case "quiz_answer":
 		data, ok := m.Data.(map[string]interface{})
 
-		id, _ := strconv.ParseUint(data["quiz_id"].(string), 10, 32)
-		answer_id, _ := strconv.ParseUint(data["answer_id"].(string), 10, 32)
+		//id, _ := strconv.ParseUint(data["quiz_id"].(string), 10, 32)
+		//answer_id, _ := strconv.ParseUint(data["answer_id"].(string), 10, 32)
 
-		quizAnswer := models.QuizAnswer{SessionID: uint(m.Client.sessionId), QuizID: uint(id)}
+		id, ok := data["quiz_id"].(string)
+
+		if !ok {
+			m.EventType = "BadRequesr"
+			m.Data = "something went wrong, check format of params"
+
+			return m
+		}
+
+		quiz_id, _ := strconv.ParseInt(id, 10, 32)
+
+		a_id, ok := data["answer_id"].(string)
+
+		if !ok {
+			m.EventType = "BadRequesr"
+			m.Data = "something went wrong, check format of params"
+
+			return m
+		}
+
+		answer_id, _ := strconv.ParseInt(a_id, 10, 32)
+
+
+
+		quizAnswer := models.QuizAnswer{SessionID: uint(m.Client.sessionId), QuizID: uint(answer_id)}
 		if ok {
 			quizAnswer.AnswerID = uint(answer_id)
 			quizAnswer.UserID = models.CurrentUser.ID
