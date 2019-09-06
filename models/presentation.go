@@ -75,7 +75,7 @@ func UpdatePresentationHandler(w http.ResponseWriter, r *http.Request, params ma
 	DB.First(&presentation, id)
 
 	if presentation.UserId != CurrentUser.ID {
-		http.Error(w, "You can edit only your presentations", http.StatusBadRequest)
+		http.Error(w, "You can edit only your presentations", http.StatusUnauthorized)
 		return
 	}
 
