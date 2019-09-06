@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"github.com/sirupsen/logrus"
 )
 
 type OToken struct {
@@ -53,8 +54,9 @@ type GithubUserInfo struct {
 	CreatedAt         time.Time   `json:"created_at"`
 	UpdatedAt         time.Time   `json:"updated_at"`
 }
-
+var logger = logrus.New()
 func AuthWithTempTokenHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Infoln( "----------------Start auth with temporary token")
 	keys := r.URL.Query()
 
 	temporaryToken := keys.Get("temporary_token")
@@ -73,7 +75,7 @@ func AuthWithTempTokenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func newGithubConfig() oauth2.Config {
-
+	logger.Infoln( "----------------Start new github config")
 	redirectUrl := fmt.Sprintf("%v%v", os.Getenv("BASE_URL"), "users/auth/github/callback")
 	return oauth2.Config{
 		//ClientID:     "d535e0f5cad826235ff6",
@@ -99,6 +101,7 @@ func AuthWithGithubHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AuthGithubCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Infoln( "----------------Got github callback")
 	authorizationCode := r.URL.Query().Get("code")
 
 	ck, err := r.Cookie("state")

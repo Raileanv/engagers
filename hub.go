@@ -22,8 +22,10 @@ func (h *Hub) run() {
 	for {
 		select {
 		case newClient := <-h.register:
+			logger.Infoln( "[WEBSOCKET] Register new user")
 			h.clients[newClient] = true
 		case client := <-h.unregister:
+			logger.Infoln( "[WEBSOCKET] Unregister user")
 			delete(h.clients, client)
 			close(client.send)
 		case message := <-h.broadcast:
@@ -33,6 +35,7 @@ func (h *Hub) run() {
 					if client == message.Client {
 						message.SelfSended = true
 					}
+					logger.Infoln( "[WEBSOCKET]", message)
 					msg, _ := json.Marshal(message)
 					select {
 					case client.send <- msg:
