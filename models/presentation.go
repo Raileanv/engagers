@@ -56,6 +56,13 @@ func mapRequestToSession(request *http.Request, session *Session) {
 
 func GetPresentationsHandler(w http.ResponseWriter, r *http.Request) {
 	var presentations Presentations
+	DB.Table("presentations").Scan(&presentations)
+	jsonPresentations, _ := json.Marshal(presentations)
+	fmt.Fprint(w, string(jsonPresentations))
+}
+
+func GetPresentationsForVasiaHandler(w http.ResponseWriter, r *http.Request) {
+	var presentations Presentations
 	DB.Where("user_id = ?", CurrentUser.ID).Find(&presentations)
 	jsonPresentations, _ := json.Marshal(presentations)
 	fmt.Fprint(w, string(jsonPresentations))
