@@ -71,7 +71,6 @@ func UpdatePresentationHandler(w http.ResponseWriter, r *http.Request, params ma
 
 	var presentation Presentation
 	var session Session
-	var quizes []Quiz
 
 	DB.First(&presentation, id)
 
