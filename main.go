@@ -160,6 +160,9 @@ func main() {
 				models.GetPresentationSessionsHandler(w, r, params)
 			})
 			rr.Get("/", models.GetPresentationsHandler)
+			rr.Put("/:presentation_id", func(w http.ResponseWriter, r *http.Request, params martini.Params) {
+				models.UpdatePresentationHandler(w, r, params)
+			})
 
 		})
 

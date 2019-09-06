@@ -30,7 +30,7 @@ var validate *validator.Validate
 func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	mr, err := r.MultipartReader()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 	var conference Conference
@@ -41,13 +41,13 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
 		if part.FormName() == "title" {
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			conference.Title = string(data)
@@ -69,7 +69,7 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		if part.FormName() == "description" {
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			conference.Description = string(data)
@@ -77,12 +77,12 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		if part.FormName() == "start_at" {
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			startAt, err := time.Parse(time.RFC3339, string(data))
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			conference.StartAt = startAt
@@ -90,12 +90,12 @@ func CreateConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		if part.FormName() == "end_at" {
 			data, err := ioutil.ReadAll(part)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			endAt, err := time.Parse(time.RFC3339, string(data))
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 				return
 			}
 			conference.StartAt = endAt
