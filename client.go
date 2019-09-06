@@ -121,8 +121,8 @@ func processMessage(m *Message) *Message {
 	case "quiz_answer":
 		data, ok := m.Data.(map[string]interface{})
 
-		id, _ := strconv.ParseInt(data["quiz_id"].(string), 10, 32)
-		answer_id, _ := strconv.ParseInt(data["answer_id"].(string), 10, 32)
+		id, _ := strconv.ParseUint(data["quiz_id"].(string), 10, 32)
+		answer_id, _ := strconv.ParseUint(data["answer_id"].(string), 10, 32)
 
 		quizAnswer := models.QuizAnswer{SessionID: uint(m.Client.sessionId), QuizID: uint(id)}
 		if ok {
